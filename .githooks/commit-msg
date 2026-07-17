@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+import re
+import sys
+
+msg_filepath = sys.argv[1]
+with open(msg_filepath, 'r', encoding='utf-8') as fh:
+    msg = fh.read().strip()
+
+pattern = r'^(feat|fix|docs|chore|ci):\s.+'
+if not re.match(pattern, msg):
+    print('ERROR: Commit message must start with one of: feat:, fix:, docs:, chore:, ci:')
+    print('Example: feat: add new ingestion job')
+    sys.exit(1)
+sys.exit(0)
