@@ -1,0 +1,233 @@
+Ideal way to build it (simple and realistic)
+Build it like this:
+
+Data collector (Python)
+
+Pull football fixtures + odds + results from an API
+Save into PostgreSQL
+Prediction engine (Python)
+
+Apply your draw criteria (rules first, ML later)
+Score matches
+Keep top 3–10 picks per day
+Backend API (FastAPI)
+
+Endpoints like:
+/matches?date=YYYY-MM-DD
+/draw-picks?date=YYYY-MM-DD
+/draw-picks/range?from=...&to=... (for -3/+3 days)
+Frontend (Next.js + Tailwind)
+
+Date selector
+7-day scrolling window (3 days before + selected day + 3 days after)
+Cards showing confidence + why match passed criteria
+Deployment
+
+Backend on Render/Railway
+DB on Supabase/Neon/Postgres
+Frontend on Vercel
+Super specific Step-by-Step Plan (ELI5 style)
+Phase 0 — Before coding (1 day)
+Step 0.1: Create a GitHub repo
+Name example: football-draw-predictor
+
+Step 0.2: Write project goal in README
+One sentence:
+“Show the best likely football draw matches for each day, 3 before and 3 after.”
+
+Step 0.3: Choose one data provider API
+You need:
+
+fixtures
+team stats
+odds
+results/history
+(We can pick one together next.)
+
+Phase 1 — Setup foundation (1–2 days)
+Step 1.1: Install tools
+
+Python 3.12+
+Node.js 20+
+PostgreSQL
+VS Code
+Git
+Step 1.2: Create folders
+
+backend/
+frontend/
+docs/
+Step 1.3: Backend virtual env
+
+create venv
+install: fastapi, uvicorn, sqlalchemy, psycopg2-binary, alembic, pydantic, httpx, python-dotenv, apscheduler
+Step 1.4: Frontend app
+
+create Next.js app with Tailwind
+Step 1.5: Run “hello world”
+
+FastAPI route works
+Next.js home page works
+Phase 2 — Database design (1–2 days)
+Keep schema simple first.
+
+Tables to create:
+
+teams
+id
+name
+league
+country
+matches
+id
+api_match_id
+date_utc
+home_team_id
+away_team_id
+home_odds
+draw_odds
+away_odds
+status (scheduled/finished)
+home_goals
+away_goals
+team_form
+id
+team_id
+date_snapshot
+last5_wins
+last5_draws
+last5_losses
+goals_for_avg
+goals_against_avg
+draw_scores
+id
+match_id
+score_total (0-100)
+passed (bool)
+reason_json (why it passed)
+created_at
+Step 2.1: Create SQLAlchemy models
+Step 2.2: Use Alembic migration
+Step 2.3: Create DB and run migration
+
+Phase 3 — Data ingestion (3–5 days)
+Step 3.1: Build script fetch_fixtures.py
+
+get matches from today-3 to today+3
+save to DB
+Step 3.2: Build script fetch_odds.py
+
+get draw odds and update matches
+Step 3.3: Build script fetch_team_form.py
+
+compute/store form stats
+Step 3.4: Add scheduler
+
+every morning refresh 7-day window
+every few hours refresh odds
+Step 3.5: Add logging + retries
+
+if API fails, retry
+log errors
+Phase 4 — Draw criteria engine (3–4 days)
+Start with rule-based scoring (best for beginner + explainable in interviews).
+
+Example criteria (you can tune later):
+
+Draw odds in a target range (ex: 2.8–3.6)
+Both teams similar strength
+High recent draw rate
+Low goal difference trend
+H2H has draws
+No huge favorite
+Step 4.1: Create scoring.py
+
+each criterion returns points
+total = 0–100
+Step 4.2: Save reasons Example reason JSON:
+
+"draw_odds_good": true
+"team_balance_score": 14
+"h2h_draw_signal": true
+Step 4.3: Pass threshold
+
+pass if score >= 65
+Step 4.4: Per day output rule
+
+minimum 3, maximum 10
+if >10, keep top 10 by score
+if <3, show best available + “low confidence” badge
+Phase 5 — FastAPI endpoints (2–3 days)
+Create endpoints:
+
+GET /health
+GET /matches?date=2026-07-16
+GET /draw-picks?date=2026-07-16
+GET /draw-picks/range?start=2026-07-13&end=2026-07-19
+Each pick response should include:
+
+teams
+kickoff time
+draw odds
+score
+confidence label (low/medium/high)
+explanation bullets
+Phase 6 — Frontend UI (3–5 days)
+Step 6.1: Build top date navigator
+
+left/right arrows
+selected date center
+show 7-day strip
+Step 6.2: Create draw pick cards
+
+Home vs Away
+Odds
+Confidence
+Why picked
+Step 6.3: Add loading/empty/error states
+
+Step 6.4: Add filter options
+
+confidence level
+odds range
+Step 6.5: Make mobile responsive
+
+Phase 7 — Make it look professional for job applications (2–3 days)
+Add these to stand out:
+
+Auth (basic admin login)
+Admin page to edit criteria weights
+Save historical predictions and outcomes
+Dashboard:
+yesterday picks
+hit rate
+ROI simulation
+Unit tests for scoring logic
+Docker setup
+CI (GitHub Actions)
+Phase 8 — Deploy (1–2 days)
+DB: Supabase/Neon Postgres
+Backend: Railway/Render
+Frontend: Vercel
+Add env vars safely
+Buy domain (optional)
+Phase 9 — Portfolio + Job strategy (important)
+For hiring, this project should show:
+
+API integration
+backend architecture
+database design
+scheduled jobs
+business logic/scoring
+clean frontend UX
+deployment
+Put in README:
+
+architecture diagram
+screenshots
+API docs
+tradeoffs
+future ML plan
+This can definitely help you get an entry-level role if done cleanly.
+
+If you want, next message I can give you Day 1 exact commands (copy-paste terminal commands) and the exact folder/file structure to start building immediately.

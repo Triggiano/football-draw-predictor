@@ -1,0 +1,6 @@
+.env
+node_modules/
+frontend/.next/
+frontend/node_modules/
+backend/venv/
+.DS_Store
